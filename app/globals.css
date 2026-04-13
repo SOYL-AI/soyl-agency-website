@@ -1,0 +1,187 @@
+@import url('https://api.fontshare.com/v2/css?f[]=clash-display@400,500,600,700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ─── CSS Variables ───────────────────────────────────────────────── */
+:root {
+  --font-clash:   'Clash Display', 'Cabinet Grotesk', sans-serif;
+  --font-jakarta: 'Plus Jakarta Sans', sans-serif;
+  --color-bg:     #080808;
+  --color-amber:  #F5A623;
+  --color-teal:   #AFD0CC;
+  --color-white:  #F8FCFD;
+  --color-gray:   #535467;
+}
+
+/* ─── Lenis Smooth Scroll ─────────────────────────────────────────── */
+html.lenis,
+html.lenis body { height: auto; }
+.lenis.lenis-smooth { scroll-behavior: auto !important; }
+.lenis.lenis-smooth [data-lenis-prevent] { overscroll-behavior: contain; }
+.lenis.lenis-stopped { overflow: hidden; }
+.lenis.lenis-scrolling iframe { pointer-events: none; }
+
+/* ─── Base ────────────────────────────────────────────────────────── */
+@layer base {
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    background-color: #080808;
+    color: #F8FCFD;
+    font-family: var(--font-jakarta);
+    overflow-x: hidden;
+  }
+
+  ::selection {
+    background-color: rgba(245, 166, 35, 0.2);
+    color: #F8FCFD;
+  }
+
+  ::-webkit-scrollbar         { width: 3px; }
+  ::-webkit-scrollbar-track   { background: #080808; }
+  ::-webkit-scrollbar-thumb   { background: #1e1e22; border-radius: 2px; }
+  ::-webkit-scrollbar-thumb:hover { background: #F5A623; }
+}
+
+/* ─── Utilities ───────────────────────────────────────────────────── */
+@layer utilities {
+  /* Film grain */
+  .grain::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 9998;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E");
+    background-size: 300px 300px;
+    opacity: 0.032;
+    mix-blend-mode: overlay;
+  }
+
+  /* Subtle dot grid (Cortical Labs-style) — behind all content */
+  .dot-grid::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: -1;
+    background-image: radial-gradient(
+      circle,
+      rgba(255,255,255,0.038) 1px,
+      transparent 1px
+    );
+    background-size: 32px 32px;
+    mask-image: radial-gradient(ellipse 90% 90% at 50% 30%, black 20%, transparent 100%);
+    -webkit-mask-image: radial-gradient(ellipse 90% 90% at 50% 30%, black 20%, transparent 100%);
+  }
+
+  /* Fonts */
+  .font-heading { font-family: var(--font-clash); }
+  .font-mono    { font-family: 'SF Mono', 'Fira Code', 'Fira Mono', 'Roboto Mono', monospace; }
+
+  /* Gradients */
+  .text-gradient-amber {
+    background: linear-gradient(135deg, #F5A623 0%, #FFD080 55%, #F5A623 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .text-gradient-teal {
+    background: linear-gradient(135deg, #AFD0CC 0%, #D0ECEA 55%, #AFD0CC 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Glass card */
+  .glass-card {
+    background: rgba(255, 255, 255, 0.025);
+    border: 1px solid rgba(255, 255, 255, 0.065);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+  }
+
+  /* Glow borders */
+  .amber-border-glow {
+    border-color: rgba(245, 166, 35, 0.35) !important;
+    box-shadow:
+      0 0 24px rgba(245, 166, 35, 0.08),
+      0 0 48px rgba(245, 166, 35, 0.04),
+      inset 0 0 24px rgba(245, 166, 35, 0.02);
+  }
+  .teal-border-glow {
+    border-color: rgba(175, 208, 204, 0.35) !important;
+    box-shadow:
+      0 0 24px rgba(175, 208, 204, 0.08),
+      0 0 48px rgba(175, 208, 204, 0.04),
+      inset 0 0 24px rgba(175, 208, 204, 0.02);
+  }
+
+  /* Paddings */
+  .section-pad {
+    padding-top:    clamp(5rem, 10vw, 8rem);
+    padding-bottom: clamp(5rem, 10vw, 8rem);
+  }
+  .page-hero {
+    padding-top:    clamp(6rem, 12vw, 10rem);
+    padding-bottom: clamp(3rem, 6vw, 5rem);
+  }
+
+  /* Scrollbar hide */
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+  /* Text balance */
+  .text-balance { text-wrap: balance; }
+}
+
+/* ─── Components ──────────────────────────────────────────────────── */
+@layer components {
+  .btn-amber {
+    @apply inline-flex items-center gap-2 px-6 py-3 rounded-full
+           bg-soyl-amber text-soyl-black font-heading font-semibold text-sm tracking-wide
+           transition-all duration-200 hover:bg-[#FFD080] active:scale-[0.97];
+  }
+  .btn-ghost {
+    @apply inline-flex items-center gap-2 px-6 py-3 rounded-full
+           border border-white/15 text-soyl-white font-heading font-medium text-sm tracking-wide
+           transition-all duration-200 hover:border-white/30 hover:bg-white/[0.04] active:scale-[0.97];
+  }
+  .btn-teal {
+    @apply inline-flex items-center gap-2 px-6 py-3 rounded-full
+           bg-soyl-teal text-soyl-black font-heading font-semibold text-sm tracking-wide
+           transition-all duration-200 hover:bg-[#C8E6E3] active:scale-[0.97];
+  }
+
+  .section-chip {
+    @apply inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full
+           text-xs font-heading font-semibold tracking-[0.14em] uppercase
+           border border-soyl-amber/30 text-soyl-amber bg-soyl-amber/[0.07];
+  }
+
+  /* Input field */
+  .input-field {
+    @apply w-full px-4 py-3 rounded-xl bg-white/[0.04] border border-white/[0.08]
+           text-soyl-white placeholder-soyl-gray/50 text-sm font-body
+           outline-none focus:border-soyl-amber/40 focus:bg-white/[0.06]
+           transition-all duration-200;
+  }
+
+  /* Separator line */
+  .divider {
+    @apply h-px w-full bg-white/[0.06];
+  }
+  .divider-amber {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(245, 166, 35, 0.25), transparent);
+  }
+}
