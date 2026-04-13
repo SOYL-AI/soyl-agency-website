@@ -3,12 +3,28 @@
 import { useRef, useEffect } from "react"
 import * as THREE from "three"
 
-const NODE_COUNT    = 58
+const NODE_COUNT    = 100
 const SPHERE_R      = 3.0
-const LINK_DIST     = 1.65
+const LINK_DIST     = 0.95
 const AMBER         = new THREE.Color("#F5A623")
 const TEAL          = new THREE.Color("#AFD0CC")
 const DIM_WHITE     = new THREE.Color("#8899AA")
+
+function randomLogoPoint(rBase: number) {
+  const theta = Math.random() * Math.PI * 2
+  const waves = 5
+  const amp = 0.55
+  
+  const currentR = rBase + Math.sin(theta * waves) * amp
+  const scatterR = Math.random() * 0.35
+  const scatterT = Math.random() * Math.PI * 2
+  
+  const x = currentR * Math.cos(theta) + scatterR * Math.cos(scatterT)
+  const y = currentR * Math.sin(theta) + scatterR * Math.sin(scatterT)
+  const z = (Math.cos(theta * waves) * amp * 0.9) + (Math.random() - 0.5) * 0.5
+  
+  return new THREE.Vector3(x, y, z)
+}
 
 function randomSpherePoint(rMin: number, rMax: number, yFlatten = 0.72) {
   const theta = Math.random() * Math.PI * 2
@@ -44,14 +60,17 @@ export default function Hero3D() {
     // ── Nodes ─────────────────────────────────────────────────────────
     const nodePos: THREE.Vector3[]  = []
     const nodeVel: THREE.Vector3[]  = []
+    const nodeBase: THREE.Vector3[] = []
     const nodeMat: THREE.MeshBasicMaterial[] = []
 
     for (let i = 0; i < NODE_COUNT; i++) {
-      nodePos.push(randomSpherePoint(0.4, SPHERE_R))
+      const p = randomLogoPoint(2.2)
+      nodePos.push(p.clone())
+      nodeBase.push(p.clone())
       nodeVel.push(new THREE.Vector3(
-        (Math.random() - 0.5) * 0.0015,
-        (Math.random() - 0.5) * 0.0015,
-        (Math.random() - 0.5) * 0.0015,
+        (Math.random() - 0.5) * 0.002,
+        (Math.random() - 0.5) * 0.002,
+        (Math.random() - 0.5) * 0.002,
       ))
     }
 
@@ -184,7 +203,11 @@ export default function Hero3D() {
       // Drift nodes
       nodePos.forEach((pos, i) => {
         pos.add(nodeVel[i])
-        if (pos.length() > SPHERE_R * 1.08) nodeVel[i].negate()
+        // Pull back towards anchor point if drifting too far, to preserve logo shape
+        const dist = pos.distanceTo(nodeBase[i])
+        if (dist > 0.3) {
+          nodeVel[i].sub(pos.clone().sub(nodeBase[i]).multiplyScalar(0.01))
+        }
         nodeMeshGroup.children[i].position.copy(pos)
       })
 
