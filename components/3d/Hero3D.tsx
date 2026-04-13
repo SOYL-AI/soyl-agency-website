@@ -3,25 +3,41 @@
 import { useRef, useEffect } from "react"
 import * as THREE from "three"
 
-const NODE_COUNT    = 100
+const NODE_COUNT    = 240
 const SPHERE_R      = 3.0
-const LINK_DIST     = 0.95
+const LINK_DIST     = 0.65
 const AMBER         = new THREE.Color("#F5A623")
 const TEAL          = new THREE.Color("#AFD0CC")
 const DIM_WHITE     = new THREE.Color("#8899AA")
 
-function randomLogoPoint(rBase: number) {
-  const theta = Math.random() * Math.PI * 2
+function randomLogoPoint(index: number, total: number) {
+  // We distribute points exactly along 3 overlapping parametric ribbons
+  const numRibbons = 3
+  const ribbonId = index % numRibbons
+  
+  // Progress along the circle
+  const t = (index / total) * Math.PI * 2 * numRibbons
+  
+  // Logo has 5 lobes
   const waves = 5
-  const amp = 0.55
+  const baseR = 2.1
   
-  const currentR = rBase + Math.sin(theta * waves) * amp
-  const scatterR = Math.random() * 0.35
-  const scatterT = Math.random() * Math.PI * 2
+  // Phase shift each ribbon so they overlap like the actual logo
+  const phase = ribbonId * 0.6
+  // Shift their base radius slightly to give thickness to the ring
+  const thickness = (ribbonId - 1) * 0.25 
   
-  const x = currentR * Math.cos(theta) + scatterR * Math.cos(scatterT)
-  const y = currentR * Math.sin(theta) + scatterR * Math.sin(scatterT)
-  const z = (Math.cos(theta * waves) * amp * 0.9) + (Math.random() - 0.5) * 0.5
+  // Shape the wide lobes and sharp inner dips using a blended wave
+  const waveShape = Math.sin(t * waves + phase)
+  const currentR = baseR + (waveShape * 0.75) + thickness
+  
+  // Add a tiny bit of random dust scatter
+  const scatter = 0.06
+  const x = currentR * Math.cos(t) + (Math.random() - 0.5) * scatter
+  const y = currentR * Math.sin(t) + (Math.random() - 0.5) * scatter
+  
+  // Let the ribbons weave in 3D depth over and under each other
+  const z = Math.cos(t * waves + phase) * 0.6 + (ribbonId - 1) * 0.3
   
   return new THREE.Vector3(x, y, z)
 }
@@ -64,13 +80,13 @@ export default function Hero3D() {
     const nodeMat: THREE.MeshBasicMaterial[] = []
 
     for (let i = 0; i < NODE_COUNT; i++) {
-      const p = randomLogoPoint(2.2)
+      const p = randomLogoPoint(i, NODE_COUNT)
       nodePos.push(p.clone())
       nodeBase.push(p.clone())
       nodeVel.push(new THREE.Vector3(
-        (Math.random() - 0.5) * 0.002,
-        (Math.random() - 0.5) * 0.002,
-        (Math.random() - 0.5) * 0.002,
+        (Math.random() - 0.5) * 0.001,
+        (Math.random() - 0.5) * 0.001,
+        (Math.random() - 0.5) * 0.001,
       ))
     }
 
@@ -203,10 +219,10 @@ export default function Hero3D() {
       // Drift nodes
       nodePos.forEach((pos, i) => {
         pos.add(nodeVel[i])
-        // Pull back towards anchor point if drifting too far, to preserve logo shape
+        // Pull back towards anchor point tightly to preserve the intricate ribbons
         const dist = pos.distanceTo(nodeBase[i])
-        if (dist > 0.3) {
-          nodeVel[i].sub(pos.clone().sub(nodeBase[i]).multiplyScalar(0.01))
+        if (dist > 0.15) {
+          nodeVel[i].sub(pos.clone().sub(nodeBase[i]).multiplyScalar(0.015))
         }
         nodeMeshGroup.children[i].position.copy(pos)
       })
