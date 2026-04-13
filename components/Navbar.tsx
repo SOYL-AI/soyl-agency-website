@@ -38,15 +38,22 @@ export default function Navbar() {
       <motion.header
         initial={{ y: -100, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-        className={`fixed z-50 flex justify-center transition-all duration-500 ease-[0.16,1,0.3,1] left-0 right-0 pointer-events-none ${
+        transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+        className={`fixed z-50 flex justify-center left-0 right-0 pointer-events-none transition-all duration-700 ${
           isScrolled ? "top-4 md:top-6" : "top-0"
         }`}
       >
-        <div
-          className={`pointer-events-auto flex items-center justify-between transition-all duration-500 ease-[0.16,1,0.3,1] flex-shrink-0
+        <motion.div
+          layout
+          transition={{
+            type: "spring",
+            stiffness: 260,
+            damping: 30,
+            mass: 1
+          }}
+          className={`pointer-events-auto flex items-center justify-between flex-shrink-0 transition-shadow duration-500
             ${isScrolled
-              ? "h-14 px-5 mx-4 md:mx-auto w-[calc(100%-2rem)] md:w-auto md:min-w-[800px] bg-soyl-bg/85 backdrop-blur-2xl border border-white/10 shadow-2xl shadow-black/50 rounded-full"
+              ? "h-14 px-5 mx-4 md:mx-auto w-[calc(100%-2rem)] md:w-auto md:min-w-[800px] bg-soyl-bg/80 backdrop-blur-2xl border border-white/10 shadow-2xl shadow-black/80 rounded-full"
               : "h-20 px-6 md:px-8 w-full max-w-7xl mx-auto bg-transparent border-b border-transparent rounded-none"
             }
           `}
@@ -115,7 +122,7 @@ export default function Navbar() {
               />
             </div>
           </button>
-        </div>
+        </motion.div>
       </motion.header>
 
       {/* Mobile Overlay */}
