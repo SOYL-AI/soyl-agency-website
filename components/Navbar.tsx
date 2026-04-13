@@ -34,17 +34,23 @@ export default function Navbar() {
 
   return (
     <>
+      {/* Desktop/Tablet wrapper */}
       <motion.header
         initial={{ y: -100, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
-          isScrolled
-            ? "bg-soyl-bg/85 backdrop-blur-2xl border-b border-white/[0.06]"
-            : "bg-transparent"
+        className={`fixed z-50 flex justify-center transition-all duration-500 ease-[0.16,1,0.3,1] left-0 right-0 pointer-events-none ${
+          isScrolled ? "top-4 md:top-6" : "top-0"
         }`}
       >
-        <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+        <div
+          className={`pointer-events-auto flex items-center justify-between transition-all duration-500 ease-[0.16,1,0.3,1] flex-shrink-0
+            ${isScrolled
+              ? "h-14 px-5 mx-4 md:mx-auto w-[calc(100%-2rem)] md:w-auto md:min-w-[800px] bg-soyl-bg/85 backdrop-blur-2xl border border-white/10 shadow-2xl shadow-black/50 rounded-full"
+              : "h-20 px-6 md:px-8 w-full max-w-7xl mx-auto bg-transparent border-b border-transparent rounded-none"
+            }
+          `}
+        >
           {/* Logo */}
           <Link href="/" className="flex items-center gap-3 group">
             <img src="/logo.png" alt="SOYL Logo" className="w-10 h-10 object-contain rounded-full border border-white/5 bg-white/5" />
