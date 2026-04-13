@@ -46,13 +46,16 @@ export default function Navbar() {
       >
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           {/* Logo */}
-          <Link href="/" className="flex flex-col leading-none group">
-            <span className="font-heading font-bold text-xl text-soyl-white tracking-tight group-hover:text-soyl-amber transition-colors duration-200">
-              SOYL
-            </span>
-            <span className="text-[8px] font-body tracking-[0.3em] uppercase text-soyl-gray/60 group-hover:text-soyl-teal transition-colors duration-200">
-              Story Of Your Life
-            </span>
+          <Link href="/" className="flex items-center gap-3 group">
+            <img src="/logo.png" alt="SOYL Logo" className="w-10 h-10 object-contain rounded-full border border-white/5 bg-white/5" />
+            <div className="flex flex-col leading-none">
+              <span className="font-heading font-bold text-xl text-soyl-white tracking-tight group-hover:text-soyl-amber transition-colors duration-200">
+                SOYL
+              </span>
+              <span className="text-[8px] font-body tracking-[0.3em] uppercase text-soyl-gray/60 group-hover:text-soyl-teal transition-colors duration-200">
+                Story Of Your Life
+              </span>
+            </div>
           </Link>
 
           {/* Desktop Nav */}
