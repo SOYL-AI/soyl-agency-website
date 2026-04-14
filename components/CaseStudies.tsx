@@ -149,7 +149,7 @@ function StackedCard({
       transition={{ type: "spring", stiffness: 300, damping: 30 }}
       className={`absolute inset-0 ${isTop ? "cursor-grab active:cursor-grabbing" : ""}`}
     >
-      <div className={`glass-card gradient-border-wrapper rounded-2xl p-6 h-full border ${isAmber ? "border-soyl-amber/20" : "border-soyl-teal/20"}`}>
+      <div className={`bg-[#0a0a0a] gradient-border-wrapper rounded-2xl p-6 h-full border shadow-2xl ${isAmber ? "border-soyl-amber/20" : "border-soyl-teal/20"}`}>
         <div className="grid lg:grid-cols-5 gap-6 h-full">
           {/* Left — overview + metrics */}
           <div className="lg:col-span-2 flex flex-col gap-4">
