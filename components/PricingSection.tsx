@@ -121,7 +121,7 @@ export default function PricingSection() {
           className="text-center mb-12"
         >
           <span className="section-chip mb-4 inline-flex">Pricing</span>
-          <h2 className="font-heading font-bold text-display-md text-soyl-white mb-4">
+          <h2 className="font-heading font-bold text-display-sm md:text-display-md text-soyl-white mb-4">
             Pricing that respects your{" "}
             <span className="text-gradient-amber">intelligence.</span>
           </h2>
@@ -186,8 +186,8 @@ export default function PricingSection() {
               >
                 {/* Popular badge */}
                 {plan.popular && (
-                  <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 whitespace-nowrap">
-                    <span className="px-3 py-1 bg-soyl-amber text-soyl-black text-xs font-heading font-bold rounded-full">
+                  <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 whitespace-nowrap z-20">
+                    <span className="px-3 py-1 bg-soyl-amber text-soyl-black text-[10px] md:text-xs font-heading font-bold rounded-full shadow-lg">
                       Most Popular
                     </span>
                   </div>

@@ -115,7 +115,7 @@ export default function CaseStudies() {
           className="text-center mb-16"
         >
           <span className="section-chip mb-4 inline-flex">Real Results</span>
-          <h2 className="font-heading font-bold text-display-md text-soyl-white mb-4">
+          <h2 className="font-heading font-bold text-3xl md:text-display-md text-soyl-white mb-4">
             Real businesses.{" "}
             <span className="text-gradient-amber">Real results.</span>
           </h2>
@@ -139,7 +139,7 @@ export default function CaseStudies() {
                   : "border-white/10 text-soyl-gray hover:border-white/20 hover:text-soyl-white"
                 }`}
             >
-              <span className="mr-2 text-xs font-body opacity-60">{c.label}</span>
+              <span className="mr-2 text-[10px] md:text-xs font-body opacity-60">{c.label}</span>
               {c.company}
             </button>
           ))}

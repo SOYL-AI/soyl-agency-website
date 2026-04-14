@@ -147,7 +147,7 @@ export default function HowItWorks() {
           className="text-center mb-14"
         >
           <span className="section-chip mb-4 inline-flex">The Process</span>
-          <h2 className="font-heading font-bold text-display-md text-soyl-white mb-4">
+          <h2 className="font-heading font-bold text-3xl md:text-display-md text-soyl-white mb-4">
             Brief → Build → Deploy → Monitor → Expand
           </h2>
           <p className="font-body text-soyl-gray max-w-lg mx-auto text-balance">
@@ -157,7 +157,7 @@ export default function HowItWorks() {
         </motion.div>
 
         {/* Progress bar */}
-        <div ref={lineRef} className="relative mb-12 h-px bg-white/[0.05] overflow-hidden rounded-full">
+        <div ref={lineRef} className="relative mb-12 h-px bg-white/[0.05] overflow-hidden rounded-full hidden md:block">
           <motion.div
             initial={{ scaleX: 0 }}
             animate={sectionInView ? { scaleX: 1 } : {}}

@@ -62,10 +62,10 @@ export default function Navbar() {
           <Link href="/" className="flex items-center gap-3 group">
             <img src="/logo.png" alt="SOYL Logo" className="w-10 h-10 object-contain rounded-full border border-white/5 bg-white/5" />
             <div className="flex flex-col leading-none">
-              <span className="font-heading font-bold text-xl text-soyl-white tracking-tight group-hover:text-soyl-amber transition-colors duration-200">
+              <span className="font-heading font-bold text-lg md:text-xl text-soyl-white tracking-tight group-hover:text-soyl-amber transition-colors duration-200">
                 SOYL
               </span>
-              <span className="text-[8px] font-body tracking-[0.3em] uppercase text-soyl-gray/60 group-hover:text-soyl-teal transition-colors duration-200">
+              <span className="hidden md:block text-[8px] font-body tracking-[0.3em] uppercase text-soyl-gray/60 group-hover:text-soyl-teal transition-colors duration-200">
                 Story Of Your Life
               </span>
             </div>

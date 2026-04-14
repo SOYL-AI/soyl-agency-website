@@ -31,7 +31,7 @@ export default function AboutSection() {
           className="mb-16"
         >
           <span className="section-chip mb-4 inline-flex">Our Mission</span>
-          <h2 className="font-heading font-bold text-display-md text-soyl-white max-w-3xl">
+          <h2 className="font-heading font-bold text-3xl md:text-display-md text-soyl-white max-w-3xl">
             We are not an agency. We are your{" "}
             <span className="text-gradient-amber">AI-powered operations partner.</span>
           </h2>

@@ -82,7 +82,7 @@ export default function NumbersSection() {
             >
               {/* Big number */}
               <div
-                className={`font-heading font-bold text-5xl lg:text-6xl leading-none ${
+                className={`font-heading font-bold text-4xl xs:text-5xl lg:text-6xl leading-none ${
                   stat.color === "amber" ? "text-gradient-amber" : "text-gradient-teal"
                 }`}
               >

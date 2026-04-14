@@ -149,7 +149,7 @@ export default function ProblemSection() {
                 <div
                   key={i}
                   ref={(el) => { problemRefs.current[i] = el }}
-                  className="relative font-body text-lg text-soyl-white py-2"
+                  className="relative font-body text-base md:text-lg text-soyl-white py-2"
                 >
                   {/* Strike-through line */}
                   <span
@@ -171,7 +171,7 @@ export default function ProblemSection() {
                 <div
                   key={i}
                   ref={(el) => { solutionRefs.current[i] = el }}
-                  className="font-body text-lg text-soyl-teal py-2 opacity-0"
+                  className="font-body text-base md:text-lg text-soyl-teal py-2 opacity-0"
                 >
                   {item.solution}
                 </div>

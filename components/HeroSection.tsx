@@ -76,7 +76,7 @@ export default function HeroSection() {
           </motion.div>
 
           {/* Headline */}
-          <h1 className="font-heading font-bold text-display-xl text-soyl-white leading-none">
+          <h1 className="font-heading font-bold text-5xl md:text-display-xl text-soyl-white leading-tight md:leading-none">
             {words.map((word, i) => (
               <motion.span
                 key={i}
@@ -151,7 +151,7 @@ export default function HeroSection() {
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 1.2, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
-          className="relative h-[480px] lg:h-[640px] w-full"
+          className="relative h-[320px] md:h-[480px] lg:h-[640px] w-full"
         >
           <div className="absolute inset-0 pointer-events-none -scale-x-100 opacity-60 mix-blend-screen mask-image-radial z-0">
             <Image src="/images/hero_3d_primary_1776115228562.png" fill className="object-contain" alt="Hero 3D Visual" priority />
