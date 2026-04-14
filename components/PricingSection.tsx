@@ -1,10 +1,13 @@
 "use client"
 
 import Link from "next/link"
-import { useState } from "react"
+import { useState, useRef } from "react"
 import Image from "next/image"
-import { motion, AnimatePresence } from "framer-motion"
-import { IconCheck } from "@/components/icons/Icons"
+import { motion, AnimatePresence, useMotionValue, useTransform, useSpring } from "framer-motion"
+import SVGCheckmark from "@/components/ui/SVGCheckmark"
+import TextScramble from "@/components/ui/TextScramble"
+import CardSpotlight from "@/components/ui/CardSpotlight"
+import MagneticButton from "@/components/ui/MagneticButton"
 
 const plans = [
   {
@@ -102,12 +105,150 @@ const plans = [
 
 const ANNUAL_DISCOUNT = 0.2
 
-export default function PricingSection() {
-  const [billing, setBilling] = useState<"monthly" | "annual">("monthly")
+// Perspective Tilt Card (#11)
+function PricingCard({ plan, index, billing }: {
+  plan: typeof plans[0]
+  index: number
+  billing: "monthly" | "annual"
+}) {
+  const cardRef = useRef<HTMLDivElement>(null)
+  const mx = useMotionValue(0)
+  const my = useMotionValue(0)
+  const rotateX = useSpring(useTransform(my, [-0.5, 0.5], [6, -6]), { stiffness: 250, damping: 25 })
+  const rotateY = useSpring(useTransform(mx, [-0.5, 0.5], [-6, 6]), { stiffness: 250, damping: 25 })
+
+  const isAmber = plan.color === "amber"
+  const isTeal  = plan.color === "teal"
 
   const getPrice = (inr: number) =>
     (billing === "annual" ? Math.round(inr * (1 - ANNUAL_DISCOUNT)) : inr)
       .toLocaleString("en-IN")
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!cardRef.current) return
+    const r = cardRef.current.getBoundingClientRect()
+    mx.set((e.clientX - r.left) / r.width - 0.5)
+    my.set((e.clientY - r.top) / r.height - 0.5)
+  }
+
+  return (
+    <CardSpotlight teal={isTeal}>
+      <motion.div
+        ref={cardRef}
+        initial={{ opacity: 0, y: 28 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.5, delay: index * 0.08 }}
+        onMouseMove={handleMouseMove}
+        onMouseLeave={() => { mx.set(0); my.set(0) }}
+        style={{ rotateX, rotateY, transformPerspective: 1200 }}
+        className={`relative glass-card gradient-border-wrapper rounded-2xl p-6 flex flex-col gap-5 transition-all duration-300
+          ${plan.popular
+            ? "border-soyl-amber/40 shadow-amber-md scale-[1.02] bg-soyl-amber/[0.025]"
+            : "hover:border-white/[0.12]"
+          }`}
+      >
+        {/* Popular badge */}
+        {plan.popular && (
+          <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 whitespace-nowrap z-20">
+            <span className="px-3 py-1 bg-soyl-amber text-soyl-black text-[10px] md:text-xs font-heading font-bold rounded-full shadow-lg">
+              Most Popular
+            </span>
+          </div>
+        )}
+
+        {/* Plan name + tagline */}
+        <div>
+          <p className={`text-xs font-heading font-bold tracking-[0.12em] uppercase mb-1.5
+            ${isAmber ? "text-soyl-amber" : isTeal ? "text-soyl-teal" : "text-soyl-gray-light"}`}>
+            {plan.name}
+          </p>
+          <p className="text-sm font-body text-soyl-gray leading-snug">{plan.tagline}</p>
+        </div>
+
+        {/* Price */}
+        <div>
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={`${plan.name}-${billing}`}
+              initial={{ opacity: 0, y: -8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 8 }}
+              transition={{ duration: 0.2 }}
+              className="flex items-baseline gap-1.5"
+            >
+              <span className={`font-heading font-bold text-3xl
+                ${isAmber ? "text-soyl-amber" : isTeal ? "text-soyl-teal" : "text-soyl-white"}`}>
+                ₹{getPrice(plan.inr)}
+              </span>
+              <span className="text-sm font-body text-soyl-gray">/mo</span>
+            </motion.div>
+          </AnimatePresence>
+          <p className="text-xs font-body text-soyl-gray mt-1">
+            ~${billing === "annual"
+              ? Math.round(plan.usd * (1 - ANNUAL_DISCOUNT))
+              : plan.usd} USD/mo
+          </p>
+        </div>
+
+        {/* Ideal for */}
+        <p className="text-xs font-body text-soyl-gray border border-white/[0.07] rounded-lg p-3 leading-relaxed">
+          <span className="text-soyl-gray-light font-medium">Best for: </span>
+          {plan.ideal}
+        </p>
+
+        {/* Features with animated checkmarks (#20) */}
+        <ul className="flex flex-col gap-2 flex-1">
+          {plan.features.map((feat, j) => (
+            <li key={j} className="flex items-start gap-2.5 text-sm font-body text-soyl-gray">
+              <span className={`mt-0.5 flex-shrink-0
+                ${isAmber ? "text-soyl-amber" : isTeal ? "text-soyl-teal" : "text-soyl-gray-light"}`}>
+                <SVGCheckmark
+                  size={13}
+                  color={isAmber ? "#F5A623" : isTeal ? "#AFD0CC" : "#9ca3af"}
+                  delay={j * 0.06}
+                />
+              </span>
+              {feat}
+            </li>
+          ))}
+        </ul>
+
+        {/* Limits */}
+        <div className="border-t border-white/[0.06] pt-4">
+          <p className="text-xs font-heading font-semibold tracking-widest uppercase text-soyl-gray mb-2">
+            Limits
+          </p>
+          <ul className="flex flex-col gap-1.5">
+            {plan.limits.map((limit, j) => (
+              <li key={j} className="text-xs font-body text-soyl-gray flex items-center gap-2">
+                <span className="w-1 h-1 rounded-full bg-soyl-gray-dim flex-shrink-0" />
+                {limit}
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        {/* CTA */}
+        <MagneticButton strength={0.25} radius={50} className="w-full">
+          <Link
+            href="/contact"
+            className={`w-full text-center py-3 rounded-full font-heading font-semibold text-sm tracking-wide transition-all duration-200 block
+              ${plan.popular
+                ? "bg-soyl-amber text-soyl-black hover:bg-[#FFD080]"
+                : "border border-white/[0.12] text-soyl-white hover:border-white/25 hover:bg-white/[0.04]"
+              }`}
+          >
+            {plan.cta}
+          </Link>
+        </MagneticButton>
+      </motion.div>
+    </CardSpotlight>
+  )
+}
+
+export default function PricingSection() {
+  const [billing, setBilling] = useState<"monthly" | "annual">("monthly")
 
   return (
     <section className="section-pad border-t border-white/[0.06]" id="pricing">
@@ -122,8 +263,10 @@ export default function PricingSection() {
         >
           <span className="section-chip mb-4 inline-flex">Pricing</span>
           <h2 className="font-heading font-bold text-display-sm md:text-display-md text-soyl-white mb-4">
-            Pricing that respects your{" "}
-            <span className="text-gradient-amber">intelligence.</span>
+            <TextScramble text="Pricing that respects your" speed={30} />{" "}
+            <span className="text-gradient-amber">
+              <TextScramble text="intelligence." speed={30} delay={400} />
+            </span>
           </h2>
           <p className="font-body text-soyl-gray max-w-lg mx-auto text-balance">
             No lock-ins until value is proven. Traditional agencies charge ₹50K–₹3L/month
@@ -165,116 +308,11 @@ export default function PricingSection() {
           </div>
         </div>
 
-        {/* Cards */}
+        {/* Cards with perspective tilt (#11) + checkmark draw (#20) */}
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
-          {plans.map((plan, i) => {
-            const isAmber = plan.color === "amber"
-            const isTeal  = plan.color === "teal"
-
-            return (
-              <motion.div
-                key={plan.name}
-                initial={{ opacity: 0, y: 28 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: i * 0.08 }}
-                className={`relative glass-card rounded-2xl p-6 flex flex-col gap-5 transition-all duration-300
-                  ${plan.popular
-                    ? "border-soyl-amber/40 shadow-amber-md scale-[1.02] bg-soyl-amber/[0.025]"
-                    : "hover:border-white/[0.12]"
-                  }`}
-              >
-                {/* Popular badge */}
-                {plan.popular && (
-                  <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 whitespace-nowrap z-20">
-                    <span className="px-3 py-1 bg-soyl-amber text-soyl-black text-[10px] md:text-xs font-heading font-bold rounded-full shadow-lg">
-                      Most Popular
-                    </span>
-                  </div>
-                )}
-
-                {/* Plan name + tagline */}
-                <div>
-                  <p className={`text-xs font-heading font-bold tracking-[0.12em] uppercase mb-1.5
-                    ${isAmber ? "text-soyl-amber" : isTeal ? "text-soyl-teal" : "text-soyl-gray-light"}`}>
-                    {plan.name}
-                  </p>
-                  <p className="text-sm font-body text-soyl-gray leading-snug">{plan.tagline}</p>
-                </div>
-
-                {/* Price */}
-                <div>
-                  <AnimatePresence mode="wait">
-                    <motion.div
-                      key={`${plan.name}-${billing}`}
-                      initial={{ opacity: 0, y: -8 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: 8 }}
-                      transition={{ duration: 0.2 }}
-                      className="flex items-baseline gap-1.5"
-                    >
-                      <span className={`font-heading font-bold text-3xl
-                        ${isAmber ? "text-soyl-amber" : isTeal ? "text-soyl-teal" : "text-soyl-white"}`}>
-                        ₹{getPrice(plan.inr)}
-                      </span>
-                      <span className="text-sm font-body text-soyl-gray">/mo</span>
-                    </motion.div>
-                  </AnimatePresence>
-                  <p className="text-xs font-body text-soyl-gray mt-1">
-                    ~${billing === "annual"
-                      ? Math.round(plan.usd * (1 - ANNUAL_DISCOUNT))
-                      : plan.usd} USD/mo
-                  </p>
-                </div>
-
-                {/* Ideal for */}
-                <p className="text-xs font-body text-soyl-gray border border-white/[0.07] rounded-lg p-3 leading-relaxed">
-                  <span className="text-soyl-gray-light font-medium">Best for: </span>
-                  {plan.ideal}
-                </p>
-
-                {/* Features */}
-                <ul className="flex flex-col gap-2 flex-1">
-                  {plan.features.map((feat, j) => (
-                    <li key={j} className="flex items-start gap-2.5 text-sm font-body text-soyl-gray">
-                      <span className={`mt-0.5 flex-shrink-0
-                        ${isAmber ? "text-soyl-amber" : isTeal ? "text-soyl-teal" : "text-soyl-gray-light"}`}>
-                        <IconCheck size={13} />
-                      </span>
-                      {feat}
-                    </li>
-                  ))}
-                </ul>
-
-                {/* Limits */}
-                <div className="border-t border-white/[0.06] pt-4">
-                  <p className="text-xs font-heading font-semibold tracking-widest uppercase text-soyl-gray mb-2">
-                    Limits
-                  </p>
-                  <ul className="flex flex-col gap-1.5">
-                    {plan.limits.map((limit, j) => (
-                      <li key={j} className="text-xs font-body text-soyl-gray flex items-center gap-2">
-                        <span className="w-1 h-1 rounded-full bg-soyl-gray-dim flex-shrink-0" />
-                        {limit}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-
-                {/* CTA */}
-                <Link
-                  href="/contact"
-                  className={`w-full text-center py-3 rounded-full font-heading font-semibold text-sm tracking-wide transition-all duration-200
-                    ${plan.popular
-                      ? "bg-soyl-amber text-soyl-black hover:bg-[#FFD080]"
-                      : "border border-white/[0.12] text-soyl-white hover:border-white/25 hover:bg-white/[0.04]"
-                    }`}
-                >
-                  {plan.cta}
-                </Link>
-              </motion.div>
-            )
-          })}
+          {plans.map((plan, i) => (
+            <PricingCard key={plan.name} plan={plan} index={i} billing={billing} />
+          ))}
         </div>
 
         {/* Bottom CTA */}

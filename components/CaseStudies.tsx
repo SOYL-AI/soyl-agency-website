@@ -2,7 +2,10 @@
 
 import { useState, useRef } from "react"
 import Image from "next/image"
-import { motion, AnimatePresence, useInView } from "framer-motion"
+import { motion, AnimatePresence, useInView, useMotionValue, useTransform, useSpring, PanInfo } from "framer-motion"
+import ImageReveal from "@/components/ui/ImageReveal"
+import TextScramble from "@/components/ui/TextScramble"
+import CardSpotlight from "@/components/ui/CardSpotlight"
 
 const cases = [
   {
@@ -98,10 +101,125 @@ function TimelineItem({ item, i, color }: { item: typeof cases[0]["timeline"][0]
   )
 }
 
+// Stacked Card component for the card deck (#7)
+function StackedCard({
+  caseData,
+  index,
+  total,
+  isTop,
+  onSwipe,
+}: {
+  caseData: typeof cases[0]
+  index: number
+  total: number
+  isTop: boolean
+  onSwipe: () => void
+}) {
+  const isAmber = caseData.color === "amber"
+  const x = useMotionValue(0)
+  const rotate = useTransform(x, [-200, 200], [-15, 15])
+  const opacity = useTransform(x, [-200, -100, 0, 100, 200], [0.5, 1, 1, 1, 0.5])
+
+  const handleDragEnd = (_: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
+    if (Math.abs(info.offset.x) > 100) {
+      onSwipe()
+    }
+  }
+
+  const stackOffset = (total - 1 - index) * 6
+  const stackScale = 1 - (total - 1 - index) * 0.03
+
+  return (
+    <motion.div
+      style={{
+        x: isTop ? x : 0,
+        rotate: isTop ? rotate : 0,
+        opacity: isTop ? opacity : 1,
+        y: stackOffset,
+        scale: stackScale,
+        zIndex: index,
+      }}
+      drag={isTop ? "x" : false}
+      dragConstraints={{ left: 0, right: 0 }}
+      dragElastic={0.7}
+      onDragEnd={isTop ? handleDragEnd : undefined}
+      initial={{ opacity: 0, y: 40 }}
+      animate={{ opacity: 1, y: stackOffset }}
+      exit={{ opacity: 0, x: -300, rotate: -10 }}
+      transition={{ type: "spring", stiffness: 300, damping: 30 }}
+      className={`absolute inset-0 ${isTop ? "cursor-grab active:cursor-grabbing" : ""}`}
+    >
+      <div className={`glass-card gradient-border-wrapper rounded-2xl p-6 h-full border ${isAmber ? "border-soyl-amber/20" : "border-soyl-teal/20"}`}>
+        <div className="grid lg:grid-cols-5 gap-6 h-full">
+          {/* Left — overview + metrics */}
+          <div className="lg:col-span-2 flex flex-col gap-4">
+            {/* Header card */}
+            <div>
+              <p className={`text-xs font-heading font-semibold tracking-widest uppercase mb-1
+                ${isAmber ? "text-soyl-amber" : "text-soyl-teal"}`}>
+                {caseData.label}
+              </p>
+              <h3 className="font-heading font-bold text-2xl text-soyl-white mb-1">{caseData.company}</h3>
+              <p className="text-sm font-body text-soyl-gray mb-4">{caseData.tagline}</p>
+              <div className={`h-px w-full mb-4 ${isAmber ? "bg-soyl-amber/20" : "bg-soyl-teal/20"}`} />
+              <p className={`font-heading font-bold text-xl ${isAmber ? "text-soyl-amber" : "text-soyl-teal"}`}>
+                {caseData.result}
+              </p>
+              <p className="text-xs font-body text-soyl-gray mt-1">{caseData.ltv}</p>
+            </div>
+
+            {/* Case Image — with reveal animation (#9) */}
+            <ImageReveal
+              src={caseData.image}
+              alt={caseData.company}
+              accentColor={isAmber ? "amber" : "teal"}
+              containerClassName="relative w-full aspect-video rounded-2xl overflow-hidden"
+              className="object-cover hover:scale-105 transition-transform duration-700"
+            />
+
+            {/* Metrics grid */}
+            <div className="grid grid-cols-2 gap-3">
+              {caseData.metrics.map((m, i) => (
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: i * 0.07 }}
+                  className="glass-card rounded-xl p-4"
+                >
+                  <p className={`font-heading font-bold text-2xl ${isAmber ? "text-soyl-amber" : "text-soyl-teal"}`}>
+                    {m.value}
+                  </p>
+                  <p className="text-xs font-heading font-semibold text-soyl-white mt-0.5">{m.label}</p>
+                  <p className="text-[11px] font-body text-soyl-gray">{m.sub}</p>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+
+          {/* Right — timeline */}
+          <div className="lg:col-span-3 glass-card rounded-2xl p-6 overflow-y-auto max-h-[500px] no-scrollbar">
+            <p className="text-xs font-heading font-semibold tracking-widest uppercase text-soyl-gray mb-6">
+              Month-by-Month Journey
+            </p>
+            {caseData.timeline.map((item, i) => (
+              <TimelineItem key={i} item={item} i={i} color={caseData.color} />
+            ))}
+          </div>
+        </div>
+      </div>
+    </motion.div>
+  )
+}
+
 export default function CaseStudies() {
   const [active, setActive] = useState(0)
   const current = cases[active]
   const isAmber = current.color === "amber"
+
+  const handleSwipe = () => {
+    setActive((prev) => (prev + 1) % cases.length)
+  }
 
   return (
     <section className="section-pad border-t border-white/5" id="case-studies">
@@ -116,8 +234,10 @@ export default function CaseStudies() {
         >
           <span className="section-chip mb-4 inline-flex">Real Results</span>
           <h2 className="font-heading font-bold text-3xl md:text-display-md text-soyl-white mb-4">
-            Real businesses.{" "}
-            <span className="text-gradient-amber">Real results.</span>
+            <TextScramble text="Real businesses." speed={35} />{" "}
+            <span className="text-gradient-amber">
+              <TextScramble text="Real results." speed={35} delay={300} />
+            </span>
           </h2>
           <p className="font-body text-soyl-gray max-w-lg mx-auto">
             These aren&apos;t projections. They&apos;re documented month-by-month outcomes from
@@ -145,18 +265,50 @@ export default function CaseStudies() {
           ))}
         </div>
 
-        {/* Case content */}
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={current.id}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.4 }}
-            className="grid lg:grid-cols-5 gap-6"
-          >
-            {/* Left — overview + metrics */}
-            <div className="lg:col-span-2 flex flex-col gap-4">
+        {/* Swipe hint for stacked deck */}
+        <motion.p
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          className="text-center text-xs font-body text-soyl-gray/50 mb-4 hidden lg:block"
+        >
+          ← Drag to switch case studies →
+        </motion.p>
+
+        {/* Stacked Card Deck (#7) on desktop, standard AnimatePresence on mobile */}
+        <div className="hidden lg:block">
+          <div className="relative" style={{ minHeight: "580px" }}>
+            <AnimatePresence mode="popLayout">
+              {cases.map((c, i) => {
+                const position = (i - active + cases.length) % cases.length
+                if (position >= cases.length) return null
+
+                return (
+                  <StackedCard
+                    key={c.id}
+                    caseData={c}
+                    index={position === 0 ? cases.length - 1 : cases.length - 1 - position}
+                    total={cases.length}
+                    isTop={position === 0}
+                    onSwipe={handleSwipe}
+                  />
+                )
+              })}
+            </AnimatePresence>
+          </div>
+        </div>
+
+        {/* Mobile fallback — standard transition */}
+        <div className="lg:hidden">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={current.id}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.4 }}
+              className="grid gap-6"
+            >
               {/* Header card */}
               <div className={`glass-card rounded-2xl p-6 border ${isAmber ? "border-soyl-amber/20" : "border-soyl-teal/20"}`}>
                 <p className={`text-xs font-heading font-semibold tracking-widest uppercase mb-1
@@ -172,12 +324,16 @@ export default function CaseStudies() {
                 <p className="text-xs font-body text-soyl-gray mt-1">{current.ltv}</p>
               </div>
 
-              {/* Case Image */}
-              <div className={`relative w-full aspect-video rounded-2xl overflow-hidden glass-card border ${isAmber ? "border-soyl-amber/20" : "border-soyl-teal/20"}`}>
-                <Image src={current.image} fill className="object-cover hover:scale-105 transition-transform duration-700" alt={current.company} />
-              </div>
+              {/* Case Image with reveal (#9) */}
+              <ImageReveal
+                src={current.image}
+                alt={current.company}
+                accentColor={isAmber ? "amber" : "teal"}
+                containerClassName="relative w-full aspect-video rounded-2xl overflow-hidden glass-card"
+                className="object-cover"
+              />
 
-              {/* Metrics grid */}
+              {/* Metrics */}
               <div className="grid grid-cols-2 gap-3">
                 {current.metrics.map((m, i) => (
                   <motion.div
@@ -195,19 +351,19 @@ export default function CaseStudies() {
                   </motion.div>
                 ))}
               </div>
-            </div>
 
-            {/* Right — timeline */}
-            <div className="lg:col-span-3 glass-card rounded-2xl p-6">
-              <p className="text-xs font-heading font-semibold tracking-widest uppercase text-soyl-gray mb-6">
-                Month-by-Month Journey
-              </p>
-              {current.timeline.map((item, i) => (
-                <TimelineItem key={i} item={item} i={i} color={current.color} />
-              ))}
-            </div>
-          </motion.div>
-        </AnimatePresence>
+              {/* Timeline */}
+              <div className="glass-card rounded-2xl p-6">
+                <p className="text-xs font-heading font-semibold tracking-widest uppercase text-soyl-gray mb-6">
+                  Month-by-Month Journey
+                </p>
+                {current.timeline.map((item, i) => (
+                  <TimelineItem key={i} item={item} i={i} color={current.color} />
+                ))}
+              </div>
+            </motion.div>
+          </AnimatePresence>
+        </div>
       </div>
     </section>
   )

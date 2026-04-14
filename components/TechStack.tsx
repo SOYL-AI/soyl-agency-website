@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion"
 import Marquee from "@/components/ui/Marquee"
+import TextScramble from "@/components/ui/TextScramble"
 
 // Tools with brand color accents instead of emojis
 const row1 = [
@@ -40,8 +41,11 @@ function ToolPill({ name, dot }: { name: string; dot: string }) {
   return (
     <div className="flex items-center gap-2.5 px-4 py-2.5 rounded-full border border-white/[0.07]
       hover:border-white/[0.15] hover:bg-white/[0.03] transition-all duration-200 cursor-default
-      group flex-shrink-0 bg-white/[0.02]">
-      <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ backgroundColor: dot }} />
+      group flex-shrink-0 bg-white/[0.02] gradient-border-wrapper">
+      <span
+        className="w-1.5 h-1.5 rounded-full flex-shrink-0 group-hover:shadow-[0_0_8px_var(--dot-color)]"
+        style={{ backgroundColor: dot, "--dot-color": dot } as React.CSSProperties}
+      />
       <span className="font-body text-sm font-medium text-soyl-gray group-hover:text-soyl-white
         transition-colors whitespace-nowrap tracking-tight">
         {name}
@@ -63,8 +67,10 @@ export default function TechStack() {
         >
           <span className="section-chip mb-4 inline-flex">The Toolbox</span>
           <h2 className="font-heading font-bold text-display-md text-soyl-white mb-4">
-            Best-in-class tools.{" "}
-            <span className="text-gradient-teal">Expertly configured.</span>
+            <TextScramble text="Best-in-class tools." speed={30} />{" "}
+            <span className="text-gradient-teal">
+              <TextScramble text="Expertly configured." speed={30} delay={300} />
+            </span>
           </h2>
           <p className="font-body text-soyl-gray max-w-lg mx-auto text-balance">
             40+ platforms mastered and pre-integrated — so you never start from zero.
