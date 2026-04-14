@@ -1,9 +1,10 @@
 "use client"
 
-import { Suspense } from "react"
-import { motion } from "framer-motion"
-import Image from "next/image"
+import { Suspense, useRef, useCallback } from "react"
+import { motion, useScroll, useTransform } from "framer-motion"
 import Hero3D from "@/components/3d/Hero3D"
+import MagneticButton from "@/components/ui/MagneticButton"
+import TypingText from "@/components/ui/TypingText"
 
 const ticker = [
   "3x ROAS",
@@ -51,15 +52,68 @@ const headline = "Your business,\npowered by AI.\nFinally."
 
 export default function HeroSection() {
   const words = headline.split(/\s+/)
+  const sectionRef = useRef<HTMLElement>(null)
+  const spotlightRef = useRef<HTMLDivElement>(null)
+
+  // Parallax layers (#3)
+  const { scrollYProgress } = useScroll({
+    target: sectionRef,
+    offset: ["start start", "end start"],
+  })
+  const parallaxY1 = useTransform(scrollYProgress, [0, 1], [0, -80])
+  const parallaxY2 = useTransform(scrollYProgress, [0, 1], [0, -140])
+  const parallaxY3 = useTransform(scrollYProgress, [0, 1], [0, -50])
+  const heroScale  = useTransform(scrollYProgress, [0, 1], [1, 0.95])
+  const heroOpacity = useTransform(scrollYProgress, [0, 0.8], [1, 0])
+
+  // Cursor spotlight handler (#12)
+  const handleMouseMove = useCallback((e: React.MouseEvent) => {
+    if (!spotlightRef.current) return
+    const rect = spotlightRef.current.getBoundingClientRect()
+    const x = e.clientX - rect.left
+    const y = e.clientY - rect.top
+    spotlightRef.current.style.setProperty("--cursor-x", `${x}px`)
+    spotlightRef.current.style.setProperty("--cursor-y", `${y}px`)
+  }, [])
 
   return (
-    <section className="relative min-h-screen flex flex-col overflow-hidden" id="hero">
-      {/* Ambient background glows */}
-      <div className="absolute top-1/4 -left-40 w-96 h-96 rounded-full bg-soyl-amber/5 blur-[120px] pointer-events-none" />
-      <div className="absolute top-1/3 right-0 w-80 h-80 rounded-full bg-soyl-teal/5 blur-[100px] pointer-events-none" />
+    <section ref={sectionRef} className="relative min-h-screen flex flex-col overflow-hidden" id="hero">
+      {/* Cursor Spotlight Layer (#12) */}
+      <div
+        ref={spotlightRef}
+        onMouseMove={handleMouseMove}
+        className="absolute inset-0 cursor-spotlight pointer-events-auto z-0"
+      />
+
+      {/* Parallax Depth Layers (#3) */}
+      <motion.div
+        style={{ y: parallaxY1 }}
+        className="absolute top-1/4 -left-40 w-96 h-96 rounded-full bg-soyl-amber/5 blur-[120px] pointer-events-none"
+      />
+      <motion.div
+        style={{ y: parallaxY2 }}
+        className="absolute top-1/3 right-0 w-80 h-80 rounded-full bg-soyl-teal/5 blur-[100px] pointer-events-none"
+      />
+      <motion.div
+        style={{ y: parallaxY3 }}
+        className="absolute bottom-1/4 left-1/3 w-64 h-64 rounded-full bg-soyl-amber/3 blur-[160px] pointer-events-none"
+      />
+      {/* Extra parallax grid layer */}
+      <motion.div
+        style={{ y: parallaxY1 }}
+        className="absolute inset-0 pointer-events-none opacity-[0.02]"
+      >
+        <div className="w-full h-full" style={{
+          backgroundImage: "linear-gradient(rgba(245,166,35,0.3) 1px, transparent 1px), linear-gradient(90deg, rgba(245,166,35,0.3) 1px, transparent 1px)",
+          backgroundSize: "60px 60px",
+        }} />
+      </motion.div>
 
       {/* Main content */}
-      <div className="flex-1 max-w-7xl mx-auto w-full px-6 grid lg:grid-cols-2 gap-8 items-center pt-24 pb-12">
+      <motion.div
+        style={{ scale: heroScale, opacity: heroOpacity }}
+        className="flex-1 max-w-7xl mx-auto w-full px-6 grid lg:grid-cols-2 gap-8 items-center pt-24 pb-12"
+      >
         {/* Left — Text */}
         <motion.div
           variants={containerVariants}
@@ -93,37 +147,44 @@ export default function HeroSection() {
             ))}
           </h1>
 
-          {/* Subheadline */}
-          <motion.p
-            variants={itemVariants}
-            className="font-body text-lg text-soyl-gray leading-relaxed max-w-md"
-          >
-            SOYL Agency gives SMBs the same AI-powered operations that Fortune 500
-            companies use — at a price that makes sense. Starting at{" "}
-            <span className="text-soyl-white font-medium">₹4,999/month</span>.
-          </motion.p>
+          {/* Subheadline — Typing Effect (#17) */}
+          <motion.div variants={itemVariants}>
+            <p className="font-body text-lg text-soyl-gray leading-relaxed max-w-md">
+              <TypingText
+                text="SOYL Agency gives SMBs the same AI-powered operations that Fortune 500 companies use — at a price that makes sense."
+                speed={20}
+                delay={1200}
+              />
+              {" "}
+              <span className="text-soyl-white font-medium">Starting at ₹4,999/month</span>.
+            </p>
+          </motion.div>
 
-          {/* CTAs */}
+          {/* CTAs — Magnetic Buttons (#8) */}
           <motion.div variants={itemVariants} className="flex flex-wrap gap-3">
-            <button
-              onClick={() => {
-                document.querySelector("#services")?.scrollIntoView({ behavior: "smooth" })
-              }}
-              className="btn-amber"
-            >
-              See Our Services
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-            </button>
-            <button
-              onClick={() => {
-                document.querySelector("#how-it-works")?.scrollIntoView({ behavior: "smooth" })
-              }}
-              className="btn-ghost"
-            >
-              How It Works
-            </button>
+            <MagneticButton strength={0.35} radius={80}>
+              <button
+                onClick={() => {
+                  document.querySelector("#services")?.scrollIntoView({ behavior: "smooth" })
+                }}
+                className="btn-amber"
+              >
+                See Our Services
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                  <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </button>
+            </MagneticButton>
+            <MagneticButton strength={0.3} radius={70}>
+              <button
+                onClick={() => {
+                  document.querySelector("#how-it-works")?.scrollIntoView({ behavior: "smooth" })
+                }}
+                className="btn-ghost"
+              >
+                How It Works
+              </button>
+            </MagneticButton>
           </motion.div>
 
           {/* Social proof nudge */}
@@ -146,27 +207,24 @@ export default function HeroSection() {
           </motion.div>
         </motion.div>
 
-        {/* Right — 3D Scene */}
+        {/* Right — 3D Scene (touch-responsive, no static image) */}
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 1.2, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
           className="relative h-[320px] md:h-[480px] lg:h-[640px] w-full"
         >
-          <div className="absolute inset-0 pointer-events-none -scale-x-100 opacity-60 mix-blend-screen mask-image-radial z-0">
-            <Image src="/images/hero_3d_primary_1776115228562.png" fill className="object-contain" alt="Hero 3D Visual" priority />
-          </div>
           <Suspense fallback={
-            <div className="w-full h-full flex items-center justify-center relative z-10">
+            <div className="w-full h-full flex items-center justify-center">
               <div className="w-24 h-24 rounded-full border border-soyl-amber/20 animate-pulse" />
             </div>
           }>
-            <div className="relative w-full h-full z-10">
+            <div className="relative w-full h-full touch-none">
               <Hero3D />
             </div>
           </Suspense>
         </motion.div>
-      </div>
+      </motion.div>
 
       {/* Outcome ticker */}
       <div className="border-t border-white/5 py-4 overflow-hidden">

@@ -65,7 +65,7 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       </head>
-      <body className="bg-soyl-bg text-soyl-white antialiased grain dot-grid overflow-x-hidden">
+      <body className="bg-soyl-bg text-soyl-white antialiased grain dot-grid overflow-x-hidden" suppressHydrationWarning>
         <LenisProvider>
           {children}
         </LenisProvider>

@@ -1,14 +1,20 @@
 "use client"
 
-import { useState } from "react"
-import Image from "next/image"
+import { useState, useRef, useCallback, Suspense } from "react"
+import dynamic from "next/dynamic"
 import { motion, AnimatePresence } from "framer-motion"
+import MagneticButton from "@/components/ui/MagneticButton"
+import TextScramble from "@/components/ui/TextScramble"
+
+// Lazy-load the 3D orb (#15)
+const FloatingOrb = dynamic(() => import("@/components/3d/FloatingOrb"), { ssr: false })
 
 type FormState = "idle" | "loading" | "success" | "error"
 
 export default function FooterCTA() {
   const [email, setEmail] = useState("")
   const [state, setState] = useState<FormState>("idle")
+  const spotlightRef = useRef<HTMLDivElement>(null)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -19,12 +25,33 @@ export default function FooterCTA() {
     setState("success")
   }
 
+  // Cursor spotlight for CTA section
+  const handleMouseMove = useCallback((e: React.MouseEvent) => {
+    if (!spotlightRef.current) return
+    const rect = spotlightRef.current.getBoundingClientRect()
+    const x = e.clientX - rect.left
+    const y = e.clientY - rect.top
+    spotlightRef.current.style.setProperty("--cursor-x", `${x}px`)
+    spotlightRef.current.style.setProperty("--cursor-y", `${y}px`)
+  }, [])
+
   return (
     <section className="section-pad border-t border-white/5 relative overflow-hidden" id="footer-cta">
-      {/* Ambient background */}
-      <div className="absolute inset-0 pointer-events-none z-0">
-        <Image src="/images/contact_cta_1776115365052.png" fill className="object-cover mix-blend-screen opacity-90" alt="CTA Background" />
+      {/* Floating Orb 3D Background (#15) */}
+      <div className="absolute inset-0 pointer-events-none z-0 flex items-center justify-center">
+        <div className="w-[500px] h-[500px] opacity-60">
+          <Suspense fallback={null}>
+            <FloatingOrb />
+          </Suspense>
+        </div>
       </div>
+
+      {/* Cursor Spotlight Layer */}
+      <div
+        ref={spotlightRef}
+        onMouseMove={handleMouseMove}
+        className="absolute inset-0 cursor-spotlight pointer-events-auto z-[1]"
+      />
 
       <div className="max-w-4xl mx-auto px-6 text-center relative z-10">
         <motion.div
@@ -37,10 +64,12 @@ export default function FooterCTA() {
           {/* Chip */}
           <span className="section-chip">Start Today</span>
 
-          {/* Headline */}
+          {/* Headline with text scramble (#10) */}
           <h2 className="font-heading font-bold text-display-lg text-soyl-white leading-none">
-            Ready to run your{" "}
-            <span className="text-gradient-amber">business on AI?</span>
+            <TextScramble text="Ready to run your" speed={30} />{" "}
+            <span className="text-gradient-amber">
+              <TextScramble text="business on AI?" speed={30} delay={300} />
+            </span>
           </h2>
 
           {/* Sub */}
@@ -49,17 +78,21 @@ export default function FooterCTA() {
             Start at ₹4,999/month — no lock-in until you see results.
           </p>
 
-          {/* CTAs */}
+          {/* CTAs — Magnetic (#8) */}
           <div className="flex flex-wrap gap-3 justify-center">
-            <button
-              onClick={() => document.querySelector("#pricing")?.scrollIntoView({ behavior: "smooth" })}
-              className="btn-amber text-base px-8 py-4"
-            >
-              Start with Starter — ₹4,999/mo
-            </button>
-            <button className="btn-ghost text-base px-8 py-4">
-              Book a Strategy Call
-            </button>
+            <MagneticButton strength={0.4} radius={90}>
+              <button
+                onClick={() => document.querySelector("#pricing")?.scrollIntoView({ behavior: "smooth" })}
+                className="btn-amber text-base px-8 py-4"
+              >
+                Start with Starter — ₹4,999/mo
+              </button>
+            </MagneticButton>
+            <MagneticButton strength={0.3} radius={70}>
+              <button className="btn-ghost text-base px-8 py-4">
+                Book a Strategy Call
+              </button>
+            </MagneticButton>
           </div>
 
           {/* Email capture */}
@@ -85,17 +118,19 @@ export default function FooterCTA() {
                     required
                     className="flex-1 px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-soyl-white placeholder-soyl-gray text-sm font-body outline-none focus:border-soyl-amber/40 transition-colors"
                   />
-                  <button
-                    type="submit"
-                    disabled={state === "loading"}
-                    className="btn-amber px-5 py-3 disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    {state === "loading" ? (
-                      <div className="w-4 h-4 rounded-full border-2 border-soyl-black/30 border-t-soyl-black animate-spin" />
-                    ) : (
-                      "Get Audit →"
-                    )}
-                  </button>
+                  <MagneticButton strength={0.2} radius={40}>
+                    <button
+                      type="submit"
+                      disabled={state === "loading"}
+                      className="btn-amber px-5 py-3 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {state === "loading" ? (
+                        <div className="w-4 h-4 rounded-full border-2 border-soyl-black/30 border-t-soyl-black animate-spin" />
+                      ) : (
+                        "Get Audit →"
+                      )}
+                    </button>
+                  </MagneticButton>
                 </motion.form>
               ) : (
                 <motion.div
@@ -104,7 +139,14 @@ export default function FooterCTA() {
                   animate={{ opacity: 1, scale: 1 }}
                   className="flex items-center justify-center gap-3 py-3 px-6 rounded-xl bg-soyl-teal/10 border border-soyl-teal/20"
                 >
-                  <span className="text-soyl-teal text-lg">✓</span>
+                  <motion.span
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ type: "spring", stiffness: 500, damping: 15, delay: 0.2 }}
+                    className="text-soyl-teal text-lg"
+                  >
+                    ✓
+                  </motion.span>
                   <p className="text-sm font-body text-soyl-teal">
                     Got it! We&apos;ll send your AI Readiness Audit within 24 hours.
                   </p>
@@ -115,18 +157,23 @@ export default function FooterCTA() {
 
           {/* Trust signals */}
           <div className="flex flex-wrap items-center justify-center gap-6 text-xs font-body text-soyl-gray pt-2">
-            <span className="flex items-center gap-1.5">
-              <span className="w-1 h-1 rounded-full bg-soyl-teal" />
-              No credit card required
-            </span>
-            <span className="flex items-center gap-1.5">
-              <span className="w-1 h-1 rounded-full bg-soyl-teal" />
-              Cancel anytime
-            </span>
-            <span className="flex items-center gap-1.5">
-              <span className="w-1 h-1 rounded-full bg-soyl-teal" />
-              Results in 14 days guaranteed
-            </span>
+            {[
+              "No credit card required",
+              "Cancel anytime",
+              "Results in 14 days guaranteed",
+            ].map((text, i) => (
+              <motion.span
+                key={i}
+                initial={{ opacity: 0, y: 10 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.3 + i * 0.1 }}
+                className="flex items-center gap-1.5"
+              >
+                <span className="w-1 h-1 rounded-full bg-soyl-teal" />
+                {text}
+              </motion.span>
+            ))}
           </div>
         </motion.div>
       </div>

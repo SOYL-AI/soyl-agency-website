@@ -142,6 +142,131 @@ html.lenis body { height: auto; }
 
   /* Text balance */
   .text-balance { text-wrap: balance; }
+
+  /* ─── Animated Gradient Border (#16) ────────────────────────────── */
+  .gradient-border-wrapper {
+    position: relative;
+    border-radius: 1rem;
+    overflow: hidden;
+  }
+  .gradient-border-wrapper::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    padding: 1px;
+    border-radius: inherit;
+    background: conic-gradient(
+      from var(--border-angle, 0deg),
+      transparent 40%,
+      rgba(245, 166, 35, 0.5) 50%,
+      rgba(175, 208, 204, 0.4) 60%,
+      transparent 70%
+    );
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    animation: rotate-border 3s linear infinite;
+    pointer-events: none;
+    z-index: 1;
+  }
+  .gradient-border-wrapper:hover::before {
+    opacity: 1;
+  }
+
+  /* ─── Shimmer Loading (#18) ──────────────────────────────────────── */
+  .shimmer {
+    position: relative;
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.03);
+  }
+  .shimmer::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      105deg,
+      transparent 40%,
+      rgba(255, 255, 255, 0.04) 50%,
+      transparent 60%
+    );
+    background-size: 200% 100%;
+    animation: shimmer-sweep 1.8s ease-in-out infinite;
+    pointer-events: none;
+  }
+
+  /* ─── Cursor Spotlight (#12) ─────────────────────────────────────── */
+  .cursor-spotlight {
+    position: relative;
+  }
+  .cursor-spotlight::before {
+    content: "";
+    position: absolute;
+    width: 400px;
+    height: 400px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(245, 166, 35, 0.07) 0%, transparent 70%);
+    pointer-events: none;
+    transform: translate(-50%, -50%);
+    left: var(--cursor-x, 50%);
+    top: var(--cursor-y, 50%);
+    z-index: 0;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+  }
+  .cursor-spotlight:hover::before {
+    opacity: 1;
+  }
+
+  /* ─── Card Spotlight (#21) ───────────────────────────────────────── */
+  .card-spotlight {
+    position: relative;
+    overflow: hidden;
+  }
+  .card-spotlight::after {
+    content: "";
+    position: absolute;
+    width: 250px;
+    height: 250px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(245, 166, 35, 0.08) 0%, transparent 70%);
+    pointer-events: none;
+    transform: translate(-50%, -50%);
+    left: var(--spot-x, 50%);
+    top: var(--spot-y, 50%);
+    z-index: 0;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  .card-spotlight:hover::after {
+    opacity: 1;
+  }
+  .card-spotlight-teal::after {
+    background: radial-gradient(circle, rgba(175, 208, 204, 0.08) 0%, transparent 70%);
+  }
+
+  /* ─── Typing Cursor (#17) ────────────────────────────────────────── */
+  .typing-cursor::after {
+    content: "▍";
+    display: inline-block;
+    color: var(--color-amber);
+    animation: blink-cursor 0.8s step-end infinite;
+    margin-left: 2px;
+    font-weight: 300;
+  }
+
+  /* ─── Scroll Progress (#19) ──────────────────────────────────────── */
+  .scroll-progress-bar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--color-amber), var(--color-teal));
+    transform-origin: left;
+    z-index: 60;
+  }
 }
 
 /* ─── Components ──────────────────────────────────────────────────── */
@@ -185,3 +310,23 @@ html.lenis body { height: auto; }
     background: linear-gradient(90deg, transparent, rgba(245, 166, 35, 0.25), transparent);
   }
 }
+
+/* ─── Keyframes ───────────────────────────────────────────────────── */
+@keyframes rotate-border {
+  to { --border-angle: 360deg; }
+}
+@keyframes shimmer-sweep {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+@keyframes blink-cursor {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0; }
+}
+
+@property --border-angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+

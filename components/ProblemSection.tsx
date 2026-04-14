@@ -35,6 +35,7 @@ export default function ProblemSection() {
   const problemRefs = useRef<(HTMLDivElement | null)[]>([])
   const solutionRefs = useRef<(HTMLDivElement | null)[]>([])
   const lineRefs = useRef<(HTMLSpanElement | null)[]>([])
+  const dividerRef = useRef<HTMLDivElement>(null)
 
   useLayoutEffect(() => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -55,6 +56,24 @@ export default function ProblemSection() {
           pinSpacing: false,
           anticipatePin: 1,
         })
+
+        // Animated divider between columns (#6 enhancement)
+        if (dividerRef.current) {
+          gsap.fromTo(
+            dividerRef.current,
+            { scaleY: 0, transformOrigin: "top center" },
+            {
+              scaleY: 1,
+              ease: "none",
+              scrollTrigger: {
+                trigger: sectionRef.current,
+                start: "0% top",
+                end: "100% top",
+                scrub: 0.6,
+              },
+            }
+          )
+        }
 
         // Animate each problem/solution pair
         problems.forEach((_, i) => {
@@ -91,13 +110,14 @@ export default function ProblemSection() {
             },
           })
 
-          // Solution fades in
+          // Solution fades in with a slide
           gsap.fromTo(
             solutionRefs.current[i],
-            { opacity: 0, x: 20 },
+            { opacity: 0, x: 30, filter: "blur(4px)" },
             {
               opacity: 1,
               x: 0,
+              filter: "blur(0px)",
               ease: "power2.out",
               scrollTrigger: {
                 trigger: sectionRef.current,
@@ -107,6 +127,29 @@ export default function ProblemSection() {
               },
             }
           )
+
+          // Solution icon pulse
+          const solutionEl = solutionRefs.current[i]
+          if (solutionEl) {
+            const icon = solutionEl.querySelector(".solution-icon")
+            if (icon) {
+              gsap.fromTo(
+                icon,
+                { scale: 0, opacity: 0 },
+                {
+                  scale: 1,
+                  opacity: 1,
+                  ease: "back.out(2)",
+                  scrollTrigger: {
+                    trigger: sectionRef.current,
+                    start: `${(start + (end - start) * 0.4) * 100}% top`,
+                    end: `${(start + (end - start) * 0.6) * 100}% top`,
+                    scrub: 0.4,
+                  },
+                }
+              )
+            }
+          }
         })
       }, sectionRef)
 
@@ -138,8 +181,19 @@ export default function ProblemSection() {
             </h2>
           </motion.div>
 
-          {/* Two-column table */}
-          <div className="grid lg:grid-cols-2 gap-8 lg:gap-16">
+          {/* Two-column table with animated divider (#6) */}
+          <div className="grid lg:grid-cols-2 gap-8 lg:gap-16 relative">
+            {/* Animated center divider (#6) */}
+            <div
+              ref={dividerRef}
+              className="hidden lg:block absolute left-1/2 top-0 bottom-0 w-px"
+              style={{
+                background: "linear-gradient(180deg, transparent, rgba(245,166,35,0.4), rgba(175,208,204,0.4), transparent)",
+                transform: "scaleY(0)",
+                transformOrigin: "top center",
+              }}
+            />
+
             {/* Left — Problems */}
             <div className="space-y-5">
               <p className="text-xs font-heading font-semibold tracking-widest uppercase text-soyl-gray mb-6">
@@ -171,8 +225,13 @@ export default function ProblemSection() {
                 <div
                   key={i}
                   ref={(el) => { solutionRefs.current[i] = el }}
-                  className="font-body text-base md:text-lg text-soyl-teal py-2 opacity-0"
+                  className="font-body text-base md:text-lg text-soyl-teal py-2 opacity-0 flex items-center gap-3"
                 >
+                  <span className="solution-icon w-5 h-5 rounded-full bg-soyl-teal/15 flex items-center justify-center flex-shrink-0">
+                    <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+                      <path d="M2 5.5L4 7.5L8 3" stroke="#AFD0CC" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </span>
                   {item.solution}
                 </div>
               ))}

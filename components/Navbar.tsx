@@ -1,9 +1,11 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
+import ScrollProgress from "@/components/ui/ScrollProgress"
+import MagneticButton from "@/components/ui/MagneticButton"
 
 const navLinks = [
   { label: "Services",     href: "/services"      },
@@ -51,7 +53,7 @@ export default function Navbar() {
             damping: 30,
             mass: 1
           }}
-          className={`pointer-events-auto flex items-center justify-between flex-shrink-0 transition-shadow duration-500
+          className={`pointer-events-auto flex items-center justify-between flex-shrink-0 transition-shadow duration-500 relative
             ${isScrolled
               ? "h-14 px-5 mx-4 md:mx-auto w-[calc(100%-2rem)] md:w-auto md:min-w-[800px] bg-soyl-bg/80 backdrop-blur-2xl border border-white/10 shadow-2xl shadow-black/80 rounded-full"
               : "h-20 px-6 md:px-8 w-full max-w-7xl mx-auto bg-transparent border-b border-transparent rounded-none"
@@ -88,17 +90,19 @@ export default function Navbar() {
             ))}
           </nav>
 
-          {/* Desktop CTA */}
+          {/* Desktop CTA — Magnetic (#8) */}
           <div className="hidden md:flex items-center gap-3">
-            <Link
-              href="/contact"
-              className="btn-amber text-xs px-5 py-2.5 inline-flex items-center gap-1.5"
-            >
-              Start Growing
-              <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-                <path d="M2.5 6h7M6.5 2.5L10 6l-3.5 3.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-            </Link>
+            <MagneticButton strength={0.3} radius={60}>
+              <Link
+                href="/contact"
+                className="btn-amber text-xs px-5 py-2.5 inline-flex items-center gap-1.5"
+              >
+                Start Growing
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                  <path d="M2.5 6h7M6.5 2.5L10 6l-3.5 3.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </Link>
+            </MagneticButton>
           </div>
 
           {/* Hamburger */}
@@ -122,6 +126,9 @@ export default function Navbar() {
               />
             </div>
           </button>
+
+          {/* Scroll Progress Indicator (#19) */}
+          <ScrollProgress />
         </motion.div>
       </motion.header>
 

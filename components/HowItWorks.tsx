@@ -3,6 +3,8 @@
 import { useRef } from "react"
 import { motion, useInView } from "framer-motion"
 import { IconBrief, IconBuild, IconDeploy, IconMonitor, IconExpand } from "@/components/icons/Icons"
+import TextScramble from "@/components/ui/TextScramble"
+import CardSpotlight from "@/components/ui/CardSpotlight"
 
 const steps = [
   {
@@ -78,14 +80,17 @@ function StepCard({ step, index }: { step: typeof steps[0]; index: number }) {
     >
       {/* Number + connector */}
       <div className="flex items-center gap-4">
-        <div className={`w-10 h-10 rounded-full flex-shrink-0 flex items-center justify-center
+        <motion.div
+          whileHover={{ scale: 1.15 }}
+          transition={{ type: "spring", stiffness: 400, damping: 15 }}
+          className={`w-10 h-10 rounded-full flex-shrink-0 flex items-center justify-center
           font-mono text-xs font-bold border transition-all duration-300
           ${isAmber
-            ? "border-soyl-amber/40 text-soyl-amber group-hover:bg-soyl-amber group-hover:text-black group-hover:border-soyl-amber"
-            : "border-soyl-teal/40 text-soyl-teal group-hover:bg-soyl-teal group-hover:text-black group-hover:border-soyl-teal"
+            ? "border-soyl-amber/40 text-soyl-amber group-hover:bg-soyl-amber group-hover:text-black group-hover:border-soyl-amber group-hover:shadow-[0_0_20px_rgba(245,166,35,0.25)]"
+            : "border-soyl-teal/40 text-soyl-teal group-hover:bg-soyl-teal group-hover:text-black group-hover:border-soyl-teal group-hover:shadow-[0_0_20px_rgba(175,208,204,0.25)]"
           }`}>
           {step.number}
-        </div>
+        </motion.div>
         {index < steps.length - 1 && (
           <motion.div
             initial={{ scaleX: 0 }}
@@ -97,37 +102,39 @@ function StepCard({ step, index }: { step: typeof steps[0]; index: number }) {
       </div>
 
       {/* Card */}
-      <div className="glass-card rounded-2xl p-5 flex flex-col gap-3 h-full">
-        {/* Icon + title row */}
-        <div className="flex items-start gap-3">
-          <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5
-            ${isAmber ? "bg-soyl-amber/8 text-soyl-amber" : "bg-soyl-teal/8 text-soyl-teal"}`}>
-            <Icon size={15} />
+      <CardSpotlight teal={!isAmber} className="h-full">
+        <div className="glass-card gradient-border-wrapper rounded-2xl p-5 flex flex-col gap-3 h-full">
+          {/* Icon + title row */}
+          <div className="flex items-start gap-3">
+            <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5
+              ${isAmber ? "bg-soyl-amber/8 text-soyl-amber" : "bg-soyl-teal/8 text-soyl-teal"}`}>
+              <Icon size={15} />
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center justify-between gap-2">
+                <h3 className="font-heading font-bold text-base text-soyl-white">{step.name}</h3>
+                <span className={`flex-shrink-0 text-[10px] font-mono font-semibold px-2 py-0.5 rounded-full
+                  ${isAmber ? "bg-soyl-amber/8 text-soyl-amber" : "bg-soyl-teal/8 text-soyl-teal"}`}>
+                  {step.tagline}
+                </span>
+              </div>
+            </div>
           </div>
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center justify-between gap-2">
-              <h3 className="font-heading font-bold text-base text-soyl-white">{step.name}</h3>
-              <span className={`flex-shrink-0 text-[10px] font-mono font-semibold px-2 py-0.5 rounded-full
-                ${isAmber ? "bg-soyl-amber/8 text-soyl-amber" : "bg-soyl-teal/8 text-soyl-teal"}`}>
-                {step.tagline}
-              </span>
+
+          <p className="font-body text-sm text-soyl-gray leading-relaxed">{step.description}</p>
+
+          <div className="pt-3 border-t border-white/[0.05] flex flex-col gap-1.5">
+            <div className="flex gap-2 text-xs">
+              <span className="text-soyl-gray/40 font-mono">TEAM</span>
+              <span className="text-soyl-gray">{step.team}</span>
+            </div>
+            <div className="flex gap-2 text-xs">
+              <span className="text-soyl-gray/40 font-mono">TOOLS</span>
+              <span className="text-soyl-gray">{step.tools}</span>
             </div>
           </div>
         </div>
-
-        <p className="font-body text-sm text-soyl-gray leading-relaxed">{step.description}</p>
-
-        <div className="pt-3 border-t border-white/[0.05] flex flex-col gap-1.5">
-          <div className="flex gap-2 text-xs">
-            <span className="text-soyl-gray/40 font-mono">TEAM</span>
-            <span className="text-soyl-gray">{step.team}</span>
-          </div>
-          <div className="flex gap-2 text-xs">
-            <span className="text-soyl-gray/40 font-mono">TOOLS</span>
-            <span className="text-soyl-gray">{step.tools}</span>
-          </div>
-        </div>
-      </div>
+      </CardSpotlight>
     </motion.div>
   )
 }
@@ -148,7 +155,7 @@ export default function HowItWorks() {
         >
           <span className="section-chip mb-4 inline-flex">The Process</span>
           <h2 className="font-heading font-bold text-3xl md:text-display-md text-soyl-white mb-4">
-            Brief → Build → Deploy → Monitor → Expand
+            <TextScramble text="Brief → Build → Deploy → Monitor → Expand" speed={25} />
           </h2>
           <p className="font-body text-soyl-gray max-w-lg mx-auto text-balance">
             Every service runs through the same battle-tested framework.
