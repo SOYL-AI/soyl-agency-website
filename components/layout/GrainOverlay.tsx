@@ -36,7 +36,7 @@ export default function GrainOverlay() {
         data[i + 3] = 255
       }
       ctx.putImageData(imageData, 0, 0)
-      id = setTimeout(drawNoise, 80)
+      id = setTimeout(drawNoise, 150)
     }
 
     resize()

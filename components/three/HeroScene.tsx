@@ -376,10 +376,10 @@ export default function HeroScene() {
 
       <EffectComposer multisampling={0}>
         <Bloom
-          intensity={2.2}
+          intensity={1.9}
           luminanceThreshold={0.28}
           luminanceSmoothing={0.92}
-          kernelSize={KernelSize.LARGE}
+          kernelSize={KernelSize.MEDIUM}
           blendFunction={BlendFunction.ADD}
         />
         <ChromaticAberration
