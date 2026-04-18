@@ -1,7 +1,22 @@
-import type { NextConfig } from "next";
+import type { NextConfig } from "next"
 
 const nextConfig: NextConfig = {
-  /* config options here */
-};
+  transpilePackages: ["three"],
+  images: {
+    remotePatterns: [
+      { protocol: "https", hostname: "cdn.soyl.in" },
+      { protocol: "https", hostname: "images.unsplash.com" },
+    ],
+    formats: ["image/avif", "image/webp"],
+  },
+  experimental: {
+    optimizePackageImports: [
+      "framer-motion",
+      "gsap",
+      "@react-three/fiber",
+      "@react-three/drei",
+    ],
+  },
+}
 
-export default nextConfig;
+export default nextConfig
